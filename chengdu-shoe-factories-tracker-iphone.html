@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Фабрики Ченду">
+<meta name="theme-color" content="#0E6E62">
+<title>Фабрики Ченду — трекер</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --paper:#F3F5F1; --panel:#FFFFFF; --ink:#191D1A; --muted:#6C7871;
+    --line:#E2E6DF; --line-strong:#CDD4CB;
+    --petrol:#0E6E62; --petrol-soft:#E4F0ED;
+    --blue:#3B6EA5; --blue-soft:#E7EEF6;
+    --amber:#B8801F; --red:#AE514A;
+    --grey:#8C9891; --grey-soft:#EDEFEC;
+    --shadow:0 1px 2px rgba(20,30,25,.05),0 6px 18px rgba(20,30,25,.05);
+  }
+  *{box-sizing:border-box}
+  html{-webkit-text-size-adjust:100%}
+  body{margin:0;background:var(--paper);color:var(--ink);
+    font-family:"Inter",system-ui,-apple-system,sans-serif;line-height:1.5;
+    padding:calc(16px + env(safe-area-inset-top)) 14px calc(64px + env(safe-area-inset-bottom));}
+  .wrap{max-width:760px;margin:0 auto}
+  .eyebrow{font-family:"Space Grotesk";text-transform:uppercase;letter-spacing:.14em;font-size:11px;font-weight:600;color:var(--petrol)}
+  h1{font-family:"Space Grotesk";font-weight:700;font-size:clamp(22px,6vw,30px);letter-spacing:-.01em;margin:.25em 0 .15em}
+  .sub{color:var(--muted);font-size:13.5px;margin:0}
+
+  .backup{display:flex;gap:8px;flex-wrap:wrap;margin:16px 0 4px}
+  .backup button{font:inherit;font-size:12.5px;font-weight:600;cursor:pointer;border:1px solid var(--line-strong);background:var(--panel);color:var(--ink);padding:9px 13px;border-radius:9px;flex:1 0 auto}
+  .backup button:active{background:var(--petrol-soft)}
+  .backup .hint{flex:1 1 100%;font-size:11.5px;color:var(--muted);margin-top:2px}
+
+  .dash{display:flex;flex-wrap:wrap;gap:8px;margin:14px 0 12px}
+  .stat{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:9px 12px;flex:1 0 auto;min-width:78px;box-shadow:var(--shadow)}
+  .stat b{font-family:"Space Grotesk";font-size:20px;display:block;line-height:1.1}
+  .stat span{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.05em}
+  .stat.progress{flex:1 1 100%}
+  .bar{height:8px;border-radius:99px;background:var(--grey-soft);overflow:hidden;margin-top:8px;display:flex}
+  .bar i{display:block;height:100%}
+  .i-interested{background:var(--petrol)}.i-called{background:var(--blue)}.i-rejected{background:var(--red)}
+
+  .chips{display:flex;flex-wrap:wrap;gap:6px;margin:8px 0 16px}
+  .chip{font:inherit;font-size:12.5px;font-weight:500;cursor:pointer;border:1px solid var(--line-strong);background:var(--panel);color:var(--muted);padding:7px 12px;border-radius:99px}
+  .chip[aria-pressed="true"]{background:var(--ink);color:#fff;border-color:var(--ink)}
+
+  .card{position:relative;background:var(--panel);border:1px solid var(--line);border-radius:14px;box-shadow:var(--shadow);margin-bottom:13px;overflow:hidden}
+  .card[data-hidden="1"]{display:none}
+  .spine{position:absolute;left:0;top:0;bottom:0;width:5px;background:var(--grey)}
+  .card[data-status="called"] .spine{background:var(--blue)}
+  .card[data-status="interested"] .spine{background:var(--petrol)}
+  .card[data-status="rejected"] .spine{background:var(--red)}
+  .card[data-status="rejected"]{opacity:.62}
+  .inner{padding:14px 14px 14px 18px}
+  .top{display:flex;gap:10px;align-items:flex-start}
+  .star{font:inherit;font-size:20px;line-height:1;background:none;border:none;cursor:pointer;color:var(--line-strong);padding:2px}
+  .star[aria-pressed="true"]{color:var(--amber)}
+  .headings{flex:1;min-width:0}
+  .name{font-family:"Space Grotesk";font-weight:600;font-size:16px;letter-spacing:-.01em}
+  .cn{font-size:12px;color:var(--muted);margin-top:1px}
+  .badges{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
+  .badge{font-size:11px;font-weight:500;padding:3px 9px;border-radius:6px;background:var(--grey-soft);color:var(--muted)}
+  .badge.spec{background:var(--petrol-soft);color:var(--petrol)}
+  .facts{font-size:12.5px;color:#3A433D;margin:11px 0 0;padding:0;list-style:none}
+  .facts li{position:relative;padding-left:16px;margin:3px 0}
+  .facts li::before{content:"";position:absolute;left:2px;top:8px;width:5px;height:5px;border-radius:99px;background:var(--line-strong)}
+  .contacts{display:flex;flex-wrap:wrap;gap:7px;margin-top:12px}
+  .btn{display:inline-flex;align-items:center;gap:6px;font:inherit;font-size:12.5px;font-weight:500;text-decoration:none;padding:8px 12px;border-radius:8px;border:1px solid var(--line-strong);color:var(--ink);background:var(--panel)}
+  .btn:active{background:var(--petrol-soft)}
+  .btn .k{color:var(--muted)}
+  .btn.wa{border-color:#cfe6d9}
+  .note-contact{font-size:12px;color:var(--muted);margin-top:9px;font-style:italic}
+  .status-row{margin-top:13px;padding-top:12px;border-top:1px dashed var(--line)}
+  .seg{display:flex;background:var(--grey-soft);border-radius:9px;padding:3px;gap:2px;width:100%}
+  .seg button{flex:1;font:inherit;font-size:11.5px;font-weight:500;cursor:pointer;border:none;background:none;color:var(--muted);padding:8px 4px;border-radius:7px}
+  .seg button[aria-pressed="true"]{background:var(--panel);color:var(--ink);box-shadow:0 1px 2px rgba(0,0,0,.08)}
+  .seg button[data-v="interested"][aria-pressed="true"]{color:var(--petrol)}
+  .seg button[data-v="called"][aria-pressed="true"]{color:var(--blue)}
+  .seg button[data-v="rejected"][aria-pressed="true"]{color:var(--red)}
+  .notes{margin-top:9px}
+  .notes textarea{width:100%;resize:vertical;min-height:40px;font:inherit;font-size:13px;color:var(--ink);background:var(--paper);border:1px solid var(--line);border-radius:8px;padding:8px 10px}
+  .notes textarea:focus{outline:none;border-color:var(--petrol);background:#fff}
+
+  details.help{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:2px 14px;margin:20px 0 0;box-shadow:var(--shadow)}
+  details.help summary{cursor:pointer;font-family:"Space Grotesk";font-weight:600;font-size:14px;padding:12px 0;list-style:none}
+  details.help summary::-webkit-details-marker{display:none}
+  details.help summary::before{content:"＋";color:var(--petrol);margin-right:8px}
+  details.help[open] summary::before{content:"－"}
+  details.help .body{font-size:12.5px;color:#3A433D;padding:0 0 14px}
+  details.help .body p{margin:6px 0}
+  .foot{color:var(--muted);font-size:11px;margin-top:22px;text-align:center}
+  .toast{position:fixed;left:50%;bottom:calc(16px + env(safe-area-inset-bottom));transform:translateX(-50%) translateY(20px);background:var(--ink);color:#fff;font-size:12.5px;padding:9px 16px;border-radius:99px;opacity:0;transition:.25s;pointer-events:none;z-index:9}
+  .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="eyebrow">Поиск производителя · Ченду</div>
+  <h1>Фабрики женской обуви — трекер</h1>
+  <p class="sub">Автономная версия для iPhone. Статусы и заметки сохраняются на этом телефоне.</p>
+
+  <div class="backup">
+    <button id="export">⤓ Сохранить копию</button>
+    <button id="import">⤒ Загрузить копию</button>
+    <input type="file" id="file" accept="application/json,.json" hidden>
+    <div class="hint">Резервная копия (JSON) — на случай, если браузер очистит память. Держите её в «Файлы»/iCloud.</div>
+  </div>
+
+  <div class="dash" id="dash">
+    <div class="stat progress"><span>Обработано</span><b id="s-done">0 / 0</b><div class="bar" id="bar"></div></div>
+    <div class="stat"><b id="s-interested" style="color:var(--petrol)">0</b><span>Интересует</span></div>
+    <div class="stat"><b id="s-called" style="color:var(--blue)">0</b><span>Позвонил</span></div>
+    <div class="stat"><b id="s-rejected" style="color:var(--red)">0</b><span>Отказ</span></div>
+    <div class="stat"><b id="s-new" style="color:var(--grey)">0</b><span>Не звонил</span></div>
+  </div>
+
+  <div class="chips" id="filters">
+    <button class="chip" data-f="all" aria-pressed="true">Все</button>
+    <button class="chip" data-f="new" aria-pressed="false">Не звонил</button>
+    <button class="chip" data-f="interested" aria-pressed="false">Интересует</button>
+    <button class="chip" data-f="called" aria-pressed="false">Позвонил</button>
+    <button class="chip" data-f="rejected" aria-pressed="false">Отказ</button>
+    <button class="chip" data-f="star" aria-pressed="false">★</button>
+  </div>
+
+  <div id="list"></div>
+
+  <details class="help">
+    <summary>Как получить WeChat, телефон и проверить фабрику</summary>
+    <div class="body">
+      <p><b>WeChat / телефон.</b> Публично почти не выкладывают. На витрине жмите «Contact Supplier» / «Send Inquiry» и сразу просите WeChat/WhatsApp менеджера. У Xinzirain контакты уже открыты ниже.</p>
+      <p><b>Цены.</b> Ищите фабрику по китайскому названию на <b>1688.com</b> — там заводские цены и WeChat.</p>
+      <p><b>Проверка.</b> «Are you factory or trading company?», видео цеха, бизнес-лицензия (营业执照), ISO, инспекция SGS/BV, тест под ТР ТС 017/2011. Оплата через Trade Assurance, не 100% вперёд.</p>
+    </div>
+  </details>
+
+  <p class="foot">Данные из открытых источников (сайты фабрик, Made-in-China, Alibaba). Перепроверяйте при контакте.</p>
+</div>
+
+<div class="toast" id="toast">Сохранено</div>
+
+<script>
+const FACTORIES = [
+  {id:"xinzirain",name:"Xinzirain",cn:"Chengdu Xinziyu Shoes Co., Ltd.",
+   spec:"Женская обувь + сумки · OEM/ODM/private label",loc:"Шуанлю, Ченду",size:"с 1998 · 8000 м² · 1000+ чел · ~5000 пар/день",
+   facts:["Полные открытые контакты — писать напрямую, минуя площадку.","Туфли, каблук, балетки, сапоги, свадебная; есть RU-сайт."],
+   contacts:[{t:"mail",k:"Email",v:"tinatang@xinzirain.com",href:"mailto:tinatang@xinzirain.com"},
+     {t:"wa",k:"WA Tina",v:"+86 151 1406 0576",href:"https://wa.me/8615114060576"},
+     {t:"wa",k:"WA Bear",v:"+86 134 5865 2303",href:"https://wa.me/8613458652303"},
+     {t:"wa",k:"WA Sylvia",v:"+86 134 5856 2149",href:"https://wa.me/8613458562149"},
+     {t:"link",k:"Сайт",v:"xingzirain.com",href:"https://www.xingzirain.com/ru/"},
+     {t:"link",k:"Instagram",v:"@xinzirain",href:"https://www.instagram.com/xinzirain/"}],
+   note:"WeChat — запросить в чате."},
+  {id:"hengsheng",name:"Chengdu Hengsheng",cn:"Chengdu Shuangliu Hengsheng Shoes Co., Ltd.",
+   spec:"Женская кожаная обувь (премиум), сапоги",loc:"Шуанлю Пэнчжэнь, Ченду",size:"с 1998 · ~1500 чел · 4 линии · ISO 9001/14001",
+   facts:["35 дизайнеров, ездят в Москву/Милан/Париж — заточка под РФ-рынок.","Контактное лицо: Mr. Carl Zhou (менеджер по продажам)."],
+   contacts:[{t:"link",k:"Made-in-China",v:"cdhengshen.en.made-in-china.com",href:"https://cdhengshen.en.made-in-china.com/"}],
+   note:"Телефон/почта скрыты — через «Send Inquiry», там же просить WhatsApp/WeChat."},
+  {id:"yiyuanquan",name:"Chengdu Yiyuanquan",cn:"Chengdu Yiyuanquan Shoes Co., Ltd.",
+   spec:"Женская обувь из PU/кожзама, ботинки, сапоги",loc:"Цзюцзян, Шуанлю, Ченду",size:"с 2010 · 2 фабрики ~10000 м² · 500+ чел",
+   facts:["Профиль ровно под запрос — специализация на кожзаме/PU.","Экспорт в Восточную Европу. Основатель Mr. Li Chunguo. MOQ 50 пар."],
+   contacts:[{t:"link",k:"Alibaba",v:"yiyuanquan.goldsupplier.com",href:"https://yiyuanquan.goldsupplier.com/"}],
+   note:"Связь — «Contact Supplier» на витрине."},
+  {id:"ansu",name:"Chengdu Ansu",cn:"Chengdu Ansu Shoes Co., Ltd.",
+   spec:"Женская обувь ручной работы, кожа, каблук, сандалии",loc:"Ченду",size:"MOQ 50 пар · образцы от 2 · срок 18–25 дней",
+   facts:["Упор на качество и ручную работу; реордер ~55%.","Подходит для мид-тир/премиум ритейла."],
+   contacts:[{t:"link",k:"Alibaba",v:"cdas.en.alibaba.com",href:"https://cdas.en.alibaba.com/"}],
+   note:"Связь — «Contact Supplier» на витрине."},
+  {id:"jiulong",name:"Chengdu Jiulong",cn:"Chengdu Shuangliu Jiulong Shoes Co., Ltd.",
+   spec:"Модная женская обувь, крупные объёмы",loc:"Синьду / Шуанлю, Ченду",size:"с 1990 · 2+ млн пар/год",
+   facts:["Прямой экспорт в Россию — знают требования и логистику.","Адрес: No. 34, Rongdu Street, Xindu, Chengdu."],
+   contacts:[{t:"link",k:"Made-in-China",v:"bluesky20082009.en.made-in-china.com",href:"https://bluesky20082009.en.made-in-china.com/"}],
+   note:"Связь — «Send Inquiry» на витрине."},
+  {id:"bbl",name:"Chengdu «Beautiful Looks»",cn:"Chengdu Shoes Bring Beautiful Looks Co., Ltd.",
+   spec:"Женская и детская обувь",loc:"Шуанлю, Ченду",size:"23 года · ~300 чел",
+   facts:["Дизайн и производство под ключ.","Экспорт: США, Европа, Ближний Восток и др."],
+   contacts:[{t:"link",k:"Made-in-China",v:"shoes86028.en.made-in-china.com",href:"https://shoes86028.en.made-in-china.com/"}],
+   note:"Связь — «Send Inquiry» на витрине."},
+  {id:"design-trading",name:"Chengdu Shoes Design & Trading",cn:"Chengdu Shoes Design & Trading Co., Ltd.",
+   spec:"Разработка + производство (бюро + 6 фабрик)",loc:"Ченду",size:"~10000 пар/день · 15 дизайнеров",
+   facts:["Дизайн/трейдинг с пулом заводов — гибко по моделям и объёму.","Удобно для разработки своей модели под бренд."],
+   contacts:[{t:"link",k:"Made-in-China",v:"made-in-china.com/showroom/715918abcd",href:"https://www.made-in-china.com/showroom/715918abcd/"}],
+   note:"Трейдинг с производством — уточните, где шьют вашу модель."},
+  {id:"cofida",name:"Chengdu COFIDA",cn:"Chengdu COFIDA Leather Products (COFIDA International)",
+   spec:"Женские туфли и сапоги (dress shoes), кожа",loc:"Ченду",size:"группа с 1970 · 6 линий · ~500k пар/год",
+   facts:["Классические женские туфли/ботинки; экспорт в Восточную Европу.","Своего сайта нет — вход через поиск на площадке."],
+   contacts:[{t:"link",k:"Поиск Alibaba",v:"«Chengdu COFIDA shoes»",href:"https://www.alibaba.com/trade/search?SearchText=Chengdu+COFIDA+shoes"}],
+   note:"Проверьте профиль и актуальность перед контактом."},
+  {id:"guide",name:"Guide Your Shoes (Chengdu Guide / Hongke)",cn:"Chengdu Guide Technology Co., Ltd.",
+   spec:"Женская обувь, сандалии, сапоги, каблук — PU и кожа",loc:"Ченду",size:"фабрика: Chengdu Hongke",
+   facts:["По данным каталога, поставляла для Zara и Aldo.","Прямой контакт не публичен — вход через поиск."],
+   contacts:[{t:"link",k:"Поиск Alibaba",v:"«Chengdu Guide shoes»",href:"https://www.alibaba.com/trade/search?SearchText=Chengdu+Guide+Your+Shoes"}],
+   note:"Уточните: фабрика или экспортный агент."}
+];
+const STATUSES=[{v:"new",label:"Не звонил"},{v:"called",label:"Позвонил"},{v:"interested",label:"Интересует"},{v:"rejected",label:"Отказ"}];
+
+const KEY="cd-tracker-iphone-v1";
+let state={};
+function load(){ try{const s=localStorage.getItem(KEY); if(s) state=JSON.parse(s);}catch(e){state={};} }
+function save(){ try{localStorage.setItem(KEY,JSON.stringify(state)); flash("Сохранено");}catch(e){flash("Память недоступна — сделайте копию");} }
+let t=null; function saveDebounced(){clearTimeout(t);t=setTimeout(save,400);}
+function rec(id){ if(!state[id]) state[id]={status:"new",notes:"",priority:false}; return state[id]; }
+
+const toast=document.getElementById("toast");let tt=null;
+function flash(msg){toast.textContent=msg;toast.classList.add("show");clearTimeout(tt);tt=setTimeout(()=>toast.classList.remove("show"),1200);}
+
+function esc(s){return String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));}
+const list=document.getElementById("list");
+let activeFilter="all";
+
+function cardHTML(f){
+  const r=rec(f.id);
+  const badges=`<span class="badge spec">${esc(f.spec)}</span><span class="badge">${esc(f.loc)}</span><span class="badge">${esc(f.size)}</span>`;
+  const facts=f.facts.map(x=>`<li>${esc(x)}</li>`).join("");
+  const contacts=f.contacts.map(c=>`<a class="btn ${c.t==="wa"?"wa":""}" href="${c.href}" target="_blank" rel="noopener"><span class="k">${esc(c.k)}:</span> ${esc(c.v)}</a>`).join("");
+  const seg=STATUSES.map(s=>`<button data-act="status" data-v="${s.v}" aria-pressed="${r.status===s.v}">${s.label}</button>`).join("");
+  return `<div class="card" data-id="${f.id}" data-status="${r.status}">
+    <div class="spine"></div><div class="inner">
+      <div class="top">
+        <button class="star" data-act="star" aria-pressed="${r.priority}">${r.priority?"★":"☆"}</button>
+        <div class="headings"><div class="name">${esc(f.name)}</div><div class="cn">${esc(f.cn)}</div><div class="badges">${badges}</div></div>
+      </div>
+      <ul class="facts">${facts}</ul>
+      <div class="contacts">${contacts}</div>
+      ${f.note?`<div class="note-contact">${esc(f.note)}</div>`:""}
+      <div class="status-row"><div class="seg">${seg}</div>
+        <div class="notes"><textarea data-act="notes" placeholder="Заметка: с кем говорил, цена, MOQ, что дальше…">${esc(r.notes||"")}</textarea></div>
+      </div>
+    </div></div>`;
+}
+function render(){ list.innerHTML=FACTORIES.map(cardHTML).join(""); applyFilter(); updateDash(); }
+function updateCard(id){
+  const r=rec(id);const card=list.querySelector(`.card[data-id="${id}"]`);if(!card)return;
+  card.dataset.status=r.status;
+  card.querySelectorAll('.seg button').forEach(b=>b.setAttribute("aria-pressed",b.dataset.v===r.status));
+  const st=card.querySelector('.star');st.setAttribute("aria-pressed",r.priority);st.textContent=r.priority?"★":"☆";
+}
+function counts(){const c={new:0,called:0,interested:0,rejected:0,total:FACTORIES.length};FACTORIES.forEach(f=>c[rec(f.id).status]++);return c;}
+function updateDash(){
+  const c=counts();const done=c.total-c.new;
+  document.getElementById("s-done").textContent=`${done} / ${c.total}`;
+  document.getElementById("s-interested").textContent=c.interested;
+  document.getElementById("s-called").textContent=c.called;
+  document.getElementById("s-rejected").textContent=c.rejected;
+  document.getElementById("s-new").textContent=c.new;
+  const p=v=>((v/c.total)*100).toFixed(1)+"%";
+  document.getElementById("bar").innerHTML=`<i class="i-interested" style="width:${p(c.interested)}"></i><i class="i-called" style="width:${p(c.called)}"></i><i class="i-rejected" style="width:${p(c.rejected)}"></i>`;
+}
+function applyFilter(){
+  FACTORIES.forEach(f=>{const r=rec(f.id);const card=list.querySelector(`.card[data-id="${f.id}"]`);if(!card)return;
+    let show=true;
+    if(activeFilter==="star")show=!!r.priority;else if(activeFilter!=="all")show=r.status===activeFilter;
+    card.dataset.hidden=show?"0":"1";});
+}
+document.getElementById("filters").addEventListener("click",e=>{
+  const b=e.target.closest(".chip");if(!b)return;activeFilter=b.dataset.f;
+  document.querySelectorAll("#filters .chip").forEach(c=>c.setAttribute("aria-pressed",c===b));applyFilter();
+});
+list.addEventListener("click",e=>{
+  const card=e.target.closest(".card");if(!card)return;const id=card.dataset.id;
+  const sb=e.target.closest('[data-act="status"]');
+  if(sb){const r=rec(id);r.status=r.status===sb.dataset.v?"new":sb.dataset.v;updateCard(id);updateDash();applyFilter();saveDebounced();return;}
+  const star=e.target.closest('[data-act="star"]');
+  if(star){const r=rec(id);r.priority=!r.priority;updateCard(id);applyFilter();saveDebounced();}
+});
+list.addEventListener("input",e=>{
+  const ta=e.target.closest('[data-act="notes"]');if(!ta)return;
+  rec(e.target.closest(".card").dataset.id).notes=ta.value;saveDebounced();
+});
+
+/* export / import */
+document.getElementById("export").addEventListener("click",()=>{
+  const blob=new Blob([JSON.stringify(state,null,2)],{type:"application/json"});
+  const url=URL.createObjectURL(blob);const a=document.createElement("a");
+  const d=new Date().toISOString().slice(0,10);
+  a.href=url;a.download=`chengdu-tracker-${d}.json`;document.body.appendChild(a);a.click();
+  setTimeout(()=>{URL.revokeObjectURL(url);a.remove();},500);
+  flash("Копия выгружена");
+});
+document.getElementById("import").addEventListener("click",()=>document.getElementById("file").click());
+document.getElementById("file").addEventListener("change",e=>{
+  const f=e.target.files[0];if(!f)return;const r=new FileReader();
+  r.onload=()=>{try{const d=JSON.parse(r.result);if(d&&typeof d==="object"){state=d;save();render();flash("Копия загружена");}else flash("Файл не распознан");}catch(err){flash("Файл не распознан");}};
+  r.readAsText(f);e.target.value="";
+});
+
+load();render();
+</script>
+</body>
+</html>
